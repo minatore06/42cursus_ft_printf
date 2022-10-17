@@ -12,7 +12,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "libft.h"
+#include "libft/libft.h"
 
 #include <stdio.h>
 
@@ -48,7 +48,38 @@ int	ft_putstr(char *s)
 	return (i);
 }
 
-void	ft_putnbr(long n, int base, int uc)
+void	ft_putpad(int npad, int pad)
+{
+	while (npad-- > 0)
+		ft_putchar((char)pad);
+}
+
+int	nbrlen(long n, int base)
+{
+	int	ndig;
+
+	ndig = 1;
+	if (n < 0)
+	{
+		ndig++;
+		n *= -1;
+	}
+	while (n > base - 1)
+	{
+		n /= base;
+		ndig++;
+	}
+	return (ndig);
+}
+
+int	max(int n1, int n2)
+{
+	if (n1 > n2)
+		return (n1);
+	return (n2);
+}
+
+void	ft_putnbrbase(long n, int base, int uc)
 {
 	char	c;
 
@@ -57,8 +88,9 @@ void	ft_putnbr(long n, int base, int uc)
 		ft_putchar('-');
 		n *= -1;
 	}
+
 	if (n > base - 1)
-		ft_putnbr(n / base, base, uc);
+		ft_putnbrbase(n / base, base, uc);
 	if (n % base > 9)
 	{
 		c = n % base - 10 + 97;
@@ -67,8 +99,32 @@ void	ft_putnbr(long n, int base, int uc)
 	}
 	else
 		c = n % base + 48;
-	ft_putchar(c);
+	ft_putchar_fd(c, 1);
 		
+}
+
+void	managenbr(long n, int base, int uc, int *npad)
+{
+	int		meno;
+	char	pad;
+
+	pad = (char) npad[2];
+	meno = npad[3];
+	if (n < 0)
+	{
+		ft_putchar('-');
+		n *= -1;
+	}
+	if (!meno)
+	{
+		ft_putpad(npad[0] - max(npad[1], nbrlen(n, 10)), pad);
+		ft_putpad(npad[1] - nbrlen(n, 10), '0');
+	}
+	else
+		ft_putpad(npad[1] - nbrlen(n, 10), '0');
+	ft_putnbrbase(n, base, uc);
+	if (meno)
+		ft_putpad(npad[0] - max(npad[1], nbrlen(n, 10)), ' ');
 }
 
 char	*ptrtostr(long ptr)
@@ -95,46 +151,13 @@ char	*ptrtostr(long ptr)
 	return (str);
 }
 
-int	nbrlen(long n, int base)
-{
-	int	ndig;
-
-	ndig = 1;
-	if (n < 0)
-	{
-		ndig++;
-		n *= -1;
-	}
-	while (n > base - 1)
-	{
-		n /= base;
-		ndig++;
-	}
-	return (ndig);
-}
-
-void	ft_putpad(int npad, char pad)
-{
-	while (npad-- > 0)
-		ft_putchar(pad);
-}
-
-int	max(int n1, int n2)
-{
-	if (n1 > n2)
-		return (n1);
-	return (n2);
-}
-
 int	ft_printf(const char *str, ...)
 {
-	int		npad[2];
+	int		npad[4];
 	int		i;
-	int		meno;
 	int		punto;
 	long	n;
 	va_list arg_ptr;
-	char	pad;
 	char	*strvar;
 
 	i = 0;
@@ -143,24 +166,24 @@ int	ft_printf(const char *str, ...)
 	{
 		npad[0] = 0;
 		npad[1] = 0;
-		meno = 0;
+		npad[2] = ' ';
+		npad[3] = 0;
 		punto = 0;
-		pad = ' ';
 		i += ft_putstr((char *)str + i);
 		if (str[i] == '%')
 		{
 			if (str[i + 1] == '-' || str[i + 2] == '-')
 			{
-				pad = ' ';
-				meno = 1;
+				npad[2] = ' ';
+				npad[3] = 1;
 				if (str[i + 1] == '-')
 					i++;
 				else if (str[i + 2] == '-')
 					i += 2;
 			}
 			else if (str[i + 1] == '0')
-				pad = '0';
-			if (pad == ' ' || pad == '-' || pad == '0')
+				npad[2] = '0';
+			if (npad[2] == ' ' || npad[3] || npad[2] == '0')
 			{
 				while (ft_isdigit(str[i + 1]))
 				{
@@ -186,11 +209,11 @@ int	ft_printf(const char *str, ...)
 			{
 				if (str[i + 1] == 'c')
 				{
-					if (!meno)
-						ft_putpad(npad[0] - 1, pad);
+					if (!npad[3])
+						ft_putpad(npad[0] - 1, npad[2]);
 					ft_putchar((char)va_arg(arg_ptr, int));
-					if (meno)
-						ft_putpad(npad[0] - 1, pad);
+					if (npad[3])
+						ft_putpad(npad[0] - 1, npad[2]);
 				}
 				else if (str[i + 1] == 's')
 				{
@@ -198,82 +221,43 @@ int	ft_printf(const char *str, ...)
 					if (punto)
 					{
 						strvar = ft_substr(strvar, 0, npad[1]);
-						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
 					}
-					else if (!meno)
-						ft_putpad(npad[0] - ft_strlen(strvar), pad);
+					if (!npad[3])
+						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
 					ft_putstr(strvar);
-					if (meno)
-						ft_putpad(npad[0] - ft_strlen(strvar), pad);
+					if (npad[3])
+						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
 				}
 				else if (str[i + 1] == 'p')
 				{
 					n = (long)va_arg(arg_ptr, void*);
-					if (!meno)
+					if (!npad[3])
 					{
-						ft_putpad(npad[0] - nbrlen(n, 16) - 2, pad);
+						ft_putpad(npad[0] - nbrlen(n, 16) - 2, npad[2]);
 					}
 					ft_putstr(ptrtostr(n));
-					if (meno)
-						ft_putpad(npad[0] - nbrlen(n, 16) - 2, pad);
+					if (npad[3])
+						ft_putpad(npad[0] - nbrlen(n, 16) - 2, npad[2]);
 				}
 				else if (str[i + 1] == 'd' || str[i + 1] == 'i')
 				{
 					n = va_arg(arg_ptr, int);
-					if (!meno)
-					{
-						ft_putpad(npad[0] - max(npad[1], nbrlen(n, 10)), pad);
-						ft_putpad(npad[1] - nbrlen(n, 10), '0');
-					}
-					else
-						ft_putpad(npad[1] - nbrlen(n, 10), '0');
-					ft_putnbr(n, 10, 0);
-					if (meno)
-							ft_putpad(npad[0] - max(npad[1], nbrlen(n, 10)), ' ');
+					managenbr(n, 10, 0, npad);
 				}
 				else if (str[i + 1] == 'u')
 				{
 					n = va_arg(arg_ptr, unsigned int);
-					if (!meno)
-					{
-						ft_putpad(npad[0] - max(npad[1], nbrlen(n, 10)), pad);
-						ft_putpad(npad[1] - nbrlen(n, 10), '0');
-					}
-					else
-						ft_putpad(npad[1] - nbrlen(n, 10), '0');
-					ft_putnbr(n, 10, 0);
-					if (meno)
-						ft_putpad(npad[0] - max(npad[1], nbrlen(n, 10)), ' ');
+					managenbr(n, 10, 0, npad);
 				}
 				else if (str[i + 1] == 'x')
 				{
 					n = va_arg(arg_ptr, int);
-					if (!meno)
-					{
-						ft_putpad(npad[0] - max(npad[1], nbrlen(n, 16)), pad);
-						ft_putpad(npad[1] - nbrlen(n, 16), '0');
-					}
-					else
-						ft_putpad(npad[1] - nbrlen(n, 16), '0');
-					ft_putnbr(n, 16, 0);
-					if (meno)
-						ft_putpad(npad[0] - max(npad[1], nbrlen(n, 16)), ' ');
+					managenbr(n, 16, 0, npad);
 				}
 				else if (str[i + 1] == 'X')
 				{
 					n = va_arg(arg_ptr, int);
-					if (!meno)
-					{
-						ft_putpad(npad[0] - npad[1] - nbrlen(n, 16), pad);
-						ft_putpad(npad[1] - nbrlen(n, 16), '0');
-					}
-					else
-						ft_putpad(npad[1] - nbrlen(n, 16), '0');
-					ft_putnbr(n, 16, 1);
-					if (meno)
-					{
-						ft_putpad(npad[0] - npad[1] - nbrlen(n, 16), ' ');
-					}
+					managenbr(n, 16, 1, npad);
 				}
 				i += 2;
 			}
@@ -287,5 +271,5 @@ int	main(int argn, char* argv[])
 {
 	if (argn == 1)
 		return (1);
-	ft_printf(argv[1], 97, -15);
+	ft_printf(argv[1], 's', -15);
 }
