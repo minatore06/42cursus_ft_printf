@@ -12,4 +12,14 @@
 
 #ifndef LIBFTPRINTF_H
 # define LIBFTPRINTF_H
+
+typedef struct s_flags{
+	int	pad;
+	int	meno;
+	int	punto;
+	int	numsign;
+	int	spazio;
+	int	piu;
+}	t_flags;
+
 #endif

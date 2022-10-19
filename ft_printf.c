@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "libftprintf.h"
 #include "libft/libft.h"
 
 #include <stdio.h>
@@ -103,13 +104,20 @@ void	ft_putnbrbase(long n, int base, int uc)
 		
 }
 
-void	managenbr(long n, int base, int uc, int *npad)
+void	managenbr(long n, int base, int uc, int *npad, t_flags flags)
 {
 	int		meno;
 	char	pad;
 
-	pad = (char) npad[2];
-	meno = npad[3];
+	pad = (char) flags.pad;
+	meno = flags.meno;
+	if (flags.numsign && base == 16 && n)
+	{
+		ft_putchar('0');
+		if (uc)
+			ft_putchar('X');
+		else
+			ft_putchar('x');	}
 	if (n < 0)
 	{
 		ft_putchar('-');
@@ -153,9 +161,9 @@ char	*ptrtostr(long ptr)
 
 int	ft_printf(const char *str, ...)
 {
-	int		npad[4];
+	int		npad[2];
 	int		i;
-	int		punto;
+	t_flags	flags;
 	long	n;
 	va_list arg_ptr;
 	char	*strvar;
@@ -166,31 +174,39 @@ int	ft_printf(const char *str, ...)
 	{
 		npad[0] = 0;
 		npad[1] = 0;
-		npad[2] = ' ';
-		npad[3] = 0;
-		punto = 0;
+		flags.pad = 32;
+		flags.meno = 0;
 		i += ft_putstr((char *)str + i);
 		if (str[i] == '%')
 		{
+			if(str[i + 1] == '#')
+			{
+				flags.numsign = 1;
+				i++;
+			}
 			if (str[i + 1] == '-' || str[i + 2] == '-')
 			{
-				npad[2] = ' ';
-				npad[3] = 1;
+				flags.meno = 1;
 				if (str[i + 1] == '-')
 					i++;
 				else if (str[i + 2] == '-')
 					i += 2;
 			}
 			else if (str[i + 1] == '0')
-				npad[2] = '0';
-			if (npad[2] == ' ' || npad[3] || npad[2] == '0')
 			{
-				while (ft_isdigit(str[i + 1]))
-				{
-					npad[0] *= 10;
-					npad[0] += str[i + 1] - 48;
-					i++;
-				}
+				flags.pad = 48;
+				i++;
+			}
+			if(str[i + 1] == '#')
+			{
+				flags.numsign = 1;
+				i++;
+			}
+			while (ft_isdigit(str[i + 1]))
+			{
+				npad[0] *= 10;
+				npad[0] += str[i + 1] - 48;
+				i++;
 			}
 			if (str[i + 1] == '.')
 			{
@@ -200,8 +216,8 @@ int	ft_printf(const char *str, ...)
 					npad[1] *= 10;
 					npad[1] += str[i + 1] - 48;
 					i++;
-				}	
-				punto = '1';
+				}
+				flags.punto = 1;
 			}
 			if (str[i + 1] == 'c' || str[i + 1] == 's' || str[i + 1] == 'p'
 				|| str[i + 1] == 'd' || str[i + 1] == 'i' || str[i + 1] == 'u'
@@ -209,55 +225,50 @@ int	ft_printf(const char *str, ...)
 			{
 				if (str[i + 1] == 'c')
 				{
-					if (!npad[3])
-						ft_putpad(npad[0] - 1, npad[2]);
+					if (!flags.meno)
+						ft_putpad(npad[0] - 1, flags.pad);
 					ft_putchar((char)va_arg(arg_ptr, int));
-					if (npad[3])
-						ft_putpad(npad[0] - 1, npad[2]);
+					if (flags.meno)
+						ft_putpad(npad[0] - 1, flags.pad);
 				}
 				else if (str[i + 1] == 's')
 				{
 					strvar = va_arg(arg_ptr, char *);
-					if (punto)
+					if (flags.punto)
 					{
 						strvar = ft_substr(strvar, 0, npad[1]);
 					}
-					if (!npad[3])
+					if (!flags.meno)
 						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
 					ft_putstr(strvar);
-					if (npad[3])
+					if (flags.meno)
 						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
 				}
 				else if (str[i + 1] == 'p')
 				{
 					n = (long)va_arg(arg_ptr, void*);
-					if (!npad[3])
+					if (!flags.meno)
 					{
-						ft_putpad(npad[0] - nbrlen(n, 16) - 2, npad[2]);
+						ft_putpad(npad[0] - nbrlen(n, 16) - 2, flags.pad);
 					}
 					ft_putstr(ptrtostr(n));
-					if (npad[3])
-						ft_putpad(npad[0] - nbrlen(n, 16) - 2, npad[2]);
+					if (flags.meno)
+						ft_putpad(npad[0] - nbrlen(n, 16) - 2, flags.pad);
 				}
 				else if (str[i + 1] == 'd' || str[i + 1] == 'i')
 				{
 					n = va_arg(arg_ptr, int);
-					managenbr(n, 10, 0, npad);
+					managenbr(n, 10, 0, npad, flags);
 				}
 				else if (str[i + 1] == 'u')
 				{
 					n = va_arg(arg_ptr, unsigned int);
-					managenbr(n, 10, 0, npad);
+					managenbr(n, 10, 0, npad, flags);
 				}
-				else if (str[i + 1] == 'x')
+				else if (str[i + 1] == 'x' || str[i + 1] == 'X')
 				{
 					n = va_arg(arg_ptr, int);
-					managenbr(n, 16, 0, npad);
-				}
-				else if (str[i + 1] == 'X')
-				{
-					n = va_arg(arg_ptr, int);
-					managenbr(n, 16, 1, npad);
+					managenbr((unsigned int)n, 16, str[i + 1] - 'x', npad, flags);
 				}
 				i += 2;
 			}
