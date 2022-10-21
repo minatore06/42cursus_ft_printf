@@ -15,8 +15,6 @@
 #include "libftprintf.h"
 #include "libft/libft.h"
 
-#include <stdio.h>
-
 //void	ft_putchar_fd(char c, int fd)
 //void	ft_putstr_fd(char *s, int fd)
 //void	ft_putnbr_fd(int n, int fd)
@@ -107,6 +105,12 @@ void	ft_putnbrbase(long n, int base, int uc)
 void	managenbr(long n, int base, int uc, int uns, int *npad, t_flags flags)
 {
 	if (flags.numsign && base == 16 && n)
+		npad[0] -= 2;
+	if ((n < 0 || flags.piu || flags.spazio) && !uns)
+		npad[0]--;
+	if (!flags.meno)
+		ft_putpad(npad[0] - max(npad[1], nbrlen(n, base)), (char)flags.pad);
+	if (flags.numsign && base == 16 && n)
 	{
 		ft_putchar('0');
 		if (uc)
@@ -114,10 +118,6 @@ void	managenbr(long n, int base, int uc, int uns, int *npad, t_flags flags)
 		else
 			ft_putchar('x');
 	}
-	if ((n < 0 || flags.piu || flags.spazio) && !uns)
-		npad[0]--;
-	if (!flags.meno)
-		ft_putpad(npad[0] - max(npad[1], nbrlen(n, base)), (char)flags.pad);
 	if (flags.piu && n >= 0 && !uns)
 		ft_putchar('+');
 	else if (flags.spazio && n >= 0 && !uns)
@@ -133,18 +133,53 @@ void	managenbr(long n, int base, int uc, int uns, int *npad, t_flags flags)
 		ft_putpad(npad[0] - max(npad[1], nbrlen(n, base)), ' ');
 }
 
-char	*ptrtostr(long ptr)
+char	*ptrtostr(long ptr, int *npad, t_flags flags)
 {
 	int		i;
-	int	tmp;
+	int		tmp;
+	int		len;
+	int		elen;
+	int		pre;
 	char	*str;
 
-	str = malloc(sizeof(char) * 15);
-	str[14] = '\0';
-	str[1] = 'x';
-	str[0] = '0';
-	i = 13;
-	while (i >=2)
+	len = 14 + max(npad[0] - 14, npad[1] - 12);
+	i = 0;
+	elen = 2;
+	if (flags.spazio || flags.piu)
+	{
+		len++;
+		elen++;
+	}
+	if (flags.punto || flags.meno)
+		flags.pad = ' ';
+	str = malloc(sizeof(char) * (len + 1));
+	if (flags.pad == ' ' && !flags.meno)
+	{
+		while (i < npad[0] - elen - max(npad[1], 12))
+			str[i++] = ' ';
+	}
+	if (flags.spazio)
+		str[i++] = ' ';
+	if (flags.piu)
+		str[i++] = '+';
+	str[len] = 0;
+	str[i++] = '0';
+	str[i++] = 'x';
+	if (flags.pad == '0')
+	{
+		while (i < npad[0] + elen - max(npad[1], 12))
+			str[i++] = '0';
+	}
+	while (i < npad[1] - 12 + elen + npad[0] - elen - max(npad[1], 12))
+		str[i++] = '0';
+	pre = elen + max(max(npad[0] - (12 + elen), npad[1] - 12), 0);
+	i = len - 1;
+	if (flags.meno)
+	{
+		pre = elen + max(npad[1] - 12, 0);
+		i = len - 1 - (npad[0] - 12 - pre);
+	}
+	while (i >= pre)
 	{
 		tmp = ptr % 16;
 		if (tmp > 9)
@@ -153,6 +188,12 @@ char	*ptrtostr(long ptr)
 			str[i] = tmp + 48;
 		ptr /= 16;
 		i--;
+	}
+	if (flags.meno)
+	{
+		i = len - (npad[0] - elen - max(npad[1], 12));
+		while (i < len)
+			str[i++] = ' ';
 	}
 	return (str);
 }
@@ -264,13 +305,9 @@ int	ft_printf(const char *str, ...)
 				{
 					n = (long)va_arg(arg_ptr, void *);
 					result += max(npad[0], nbrlen(n, 16) + 2);
-					if (!flags.meno)
-					{
-						ft_putpad(npad[0] - nbrlen(n, 16) - 2, flags.pad);
-					}
-					ft_putstr(ptrtostr(n));
-					if (flags.meno)
-						ft_putpad(npad[0] - nbrlen(n, 16) - 2, flags.pad);
+					if (flags.spazio || flags.piu)
+						result++;
+					ft_putstr(ptrtostr(n, npad, flags));
 				}
 				else if (str[i] == 'd' || str[i] == 'i')
 				{
@@ -305,11 +342,12 @@ int	ft_printf(const char *str, ...)
 	va_end(arg_ptr);
 	return (result);
 }
-//+ e ' ' con %p???
+/*
+#include <stdio.h>
 int	main(int argn, char* argv[])
 {
 	if (argn == 1)
 		return (1);
 	if(ft_printf(argv[1], "s", -15) == printf(argv[1], "s", -15))
 		printf("\nyoo!!!");
-}
+}*/
