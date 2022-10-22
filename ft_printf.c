@@ -12,9 +12,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "libftprintf.h"
+#include "ft_printf.h"
 #include "libft/libft.h"
 
+#include <stdio.h>
+#include <limits.h>
 //void	ft_putchar_fd(char c, int fd)
 //void	ft_putstr_fd(char *s, int fd)
 //void	ft_putnbr_fd(int n, int fd)
@@ -71,6 +73,19 @@ int	nbrlen(long n, int base)
 	return (ndig);
 }
 
+int	unnbrlen(unsigned long n, unsigned int base)
+{
+	int	ndig;
+
+	ndig = 1;
+	while (n > base - 1)
+	{
+		n /= base;
+		ndig++;
+	}
+	return (ndig);
+}
+
 int	max(int n1, int n2)
 {
 	if (n1 > n2)
@@ -102,6 +117,23 @@ void	ft_putnbrbase(long n, int base, int uc)
 		
 }
 
+void	ft_putunnbrbase(unsigned long n, unsigned int base, int uc)
+{
+	char	c;
+
+	if (n > base - 1)
+		ft_putnbrbase(n / base, base, uc);
+	if (n % base > 9)
+	{
+		c = n % base - 10 + 97;
+		if (uc)
+			c -= 32;
+	}
+	else
+		c = n % base + 48;
+	ft_putchar_fd(c, 1);
+		
+}
 void	managenbr(long n, int base, int uc, int uns, int *npad, t_flags flags)
 {
 	if (flags.numsign && base == 16 && n)
@@ -122,13 +154,11 @@ void	managenbr(long n, int base, int uc, int uns, int *npad, t_flags flags)
 		ft_putchar('+');
 	else if (flags.spazio && n >= 0 && !uns)
 		ft_putchar(' ');
-	if (n < 0)
-	{
-		ft_putchar('-');
-		n *= -1;
-	}
 	ft_putpad(npad[1] - nbrlen(n, base), '0');
-	ft_putnbrbase(n, base, uc);
+	if (uns)
+		ft_putunnbrbase((unsigned long)n, base, uc);
+	else
+		ft_putnbrbase(n, base, uc);
 	if (flags.meno)
 		ft_putpad(npad[0] - max(npad[1], nbrlen(n, base)), ' ');
 }
@@ -291,23 +321,49 @@ int	ft_printf(const char *str, ...)
 				{
 					strvar = va_arg(arg_ptr, char *);
 					if (flags.punto)
-					{
 						strvar = ft_substr(strvar, 0, npad[1]);
-					}
 					result += max(npad[0], ft_strlen(strvar));
 					if (!flags.meno)
 						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
-					ft_putstr(strvar);
+					if (!strvar)
+					{
+						result += 6;
+						ft_putstr("(null)");
+					}
+					else
+						ft_putstr(strvar);
 					if (flags.meno)
 						ft_putpad(npad[0] - ft_strlen(strvar), ' ');
+					if (flags.punto)
+						free(strvar);
 				}
 				else if (str[i] == 'p')
 				{
 					n = (long)va_arg(arg_ptr, void *);
-					result += max(npad[0], nbrlen(n, 16) + 2);
 					if (flags.spazio || flags.piu)
 						result++;
-					ft_putstr(ptrtostr(n, npad, flags));
+					if (!n)
+					{
+						result += 5;
+						ft_putstr("(nil)");
+					}
+					else if (nbrlen(n, 16) != 12)
+					{
+						result += unnbrlen((unsigned long)n, 16) + 2;
+						if (flags.piu)
+							ft_putchar('+');
+						else if (flags.spazio)
+							ft_putchar(' ');
+						flags.numsign = 1;
+						managenbr(n, 16, 0, 1, npad, flags);
+					}
+					else
+					{
+						result += max(npad[0], nbrlen(n, 16) + 2);
+						strvar = ptrtostr(n, npad, flags);
+						ft_putstr(strvar);
+						free(strvar);
+					}
 				}
 				else if (str[i] == 'd' || str[i] == 'i')
 				{
@@ -325,9 +381,9 @@ int	ft_printf(const char *str, ...)
 				}
 				else if (str[i] == 'x' || str[i] == 'X')
 				{
-					n = va_arg(arg_ptr, int);
-					result += max(npad[0], max(npad[1], nbrlen(n, 16)));
-					managenbr((unsigned int)n, 16, str[i] - 'x', 1, npad, flags);
+					n = va_arg(arg_ptr, unsigned int);
+					result += max(npad[0], max(npad[1], unnbrlen(n, 16)));
+					managenbr(n, 16, str[i] - 'x', 1, npad, flags);
 				}
 			}
 			i++;
@@ -342,12 +398,14 @@ int	ft_printf(const char *str, ...)
 	va_end(arg_ptr);
 	return (result);
 }
-/*
-#include <stdio.h>
+//-2147483648
+
 int	main(int argn, char* argv[])
 {
 	if (argn == 1)
 		return (1);
-	if(ft_printf(argv[1], "s", -15) == printf(argv[1], "s", -15))
+	//printf(argv[1], -1);
+	printf("\n");
+	if(ft_printf(argv[1], "gk") == printf(argv[1], "gk"))
 		printf("\nyoo!!!");
-}*/
+}

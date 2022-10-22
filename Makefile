@@ -15,6 +15,8 @@ $(NAME): $(OBJECTS)
 	mv $(LIBFT)/$(LIBFTNAME) $(NAME)
 	ar rcs $(NAME) $(OBJECTS)
 
+bonus: all
+
 clean:
 	rm -f $(OBJECTS)
 	$(MAKE) clean -C $(LIBFT)
