@@ -1,34 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*   ft_printf_manage_flags_master.c                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: scaiazzo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/11 15:18:38 by scaiazzo          #+#    #+#             */
-/*   Updated: 2022/10/11 15:45:52 by scaiazzo         ###   ########.fr       */
+/*   Created: 2022/11/22 11:43:45 by scaiazzo          #+#    #+#             */
+/*   Updated: 2022/11/22 11:43:47 by scaiazzo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "ft_printf.h"
 
-int	ft_printf(const char *str, ...)
+int	manage_almost_flag(int *i, int result)
 {
-	int		i;
-	int		result;
-	va_list	arg_ptr;
+	ft_putchar('%');
+	(*i) += 2;
+	return (++result);
+}
 
-	result = 0;
-	i = 0;
-	va_start(arg_ptr, str);
-	while (*(str + i))
-	{
-		if (str[i] == '%' && str[i + 1] == '%')
-			result = manage_almost_flag(&i, result);
-		else if (str[i] == '%')
-			result = manage_real_flags(&i, result, str, arg_ptr);
-		else
-			result = manage_no_flag(&i, result, str);
-	}
-	va_end(arg_ptr);
+int	manage_real_flags(int *i, int result, const char *str, va_list arg_ptr)
+{
+	t_flags	flags;
+
+	reset(&flags);
+	(*i)++;
+	*i = manage_flags(*i, str, &flags);
+	result = manage_more_flags(result, str[*i], flags, arg_ptr);
+	(*i)++;
 	return (result);
+}
+
+int	manage_no_flag(int *i, int result, const char *str)
+{
+	ft_putchar(*((char *)str + *i));
+	(*i)++;
+	return (++result);
 }

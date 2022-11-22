@@ -10,11 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFTPRINTF_H
-# define LIBFTPRINTF_H
-#include "libft/libft.h"
-
-int	ft_printf(const char *str, ...);
+#ifndef FT_PRINTF_H
+# define FT_PRINTF_H
+# include <stdarg.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include "libft/libft.h"
 
 typedef struct s_flags{
 	int	pad;
@@ -25,5 +26,33 @@ typedef struct s_flags{
 	int	piu;
 	int	npad[2];
 }	t_flags;
+
+int		unnbrlen(unsigned long n, unsigned int base);
+int		nbrlen(long n, int base, int uns);
+int		max(int n1, int n2);
+void	reset(t_flags *flags);
+int		get_flags(const char *str, char *set, t_flags *flags);
+void	ft_putchar(char c);
+int		ft_putstr(char *s);
+void	ft_putpad(int npad, int pad);
+void	ft_putnbrbase(long n, int base, int uc);
+void	ft_putunnbrbase(unsigned long n, unsigned int base, int uc);
+int		ft_printf(const char *str, ...);
+int		manage_almost_flag(int *i, int result);
+int		manage_real_flags(int *i, int result, const char *str, va_list arg_ptr);
+int		manage_no_flag(int *i, int result, const char *str);
+int		manage_char_flag(int result, t_flags flags, va_list arg_ptr);
+int		manage_string_flag(int result, t_flags flags, va_list arg_ptr);
+int		manage_nbr_flag(int result, t_flags flags, va_list arg_ptr);
+int		manage_uns_flag(int result, t_flags flags, va_list arg_ptr);
+int		manage_hex_flag(int result, char flag, t_flags flags, va_list arg_ptr);
+int		manage_imptr_flag(int result, long n, t_flags flags);
+int		manage_ptr_flag(int result, t_flags flags, va_list arg_ptr);
+int		manage_more_flags(int result, char flag, t_flags flags, va_list ap);
+int		manage_flags(int i, const char *str, t_flags *flags);
+void	managenbr(long n, int base, int spc, t_flags flags);
+char	*ptrtostr(long ptr, int i, int tmp, t_flags flags);
+int		ptrtostr1(int *len, char **str, t_flags *flags);
+int		ptrtostr2(int *len, int *i, char *str, t_flags flags);
 
 #endif
