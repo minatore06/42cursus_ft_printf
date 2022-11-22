@@ -46,14 +46,14 @@ int	nbrlen(long n, int base, int uns)
 	return (ndig);
 }
 
-int	max(int n1, int n2)
+int	ft_max(int n1, int n2)
 {
 	if (n1 > n2)
 		return (n1);
 	return (n2);
 }
 
-void	reset(t_flags *flags)
+void	ft_reset(t_flags *flags)
 {
 	flags->npad[0] = 0;
 	flags->npad[1] = 0;

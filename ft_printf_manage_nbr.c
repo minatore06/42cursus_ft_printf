@@ -19,7 +19,7 @@ void	managenbr(long n, int base, int spc, t_flags flags)
 		flags.npad[0] -= 2;
 	if ((n < 0 || flags.piu || flags.spazio) && !(spc & 1))
 		flags.npad[0]--;
-	maxnb = max(flags.npad[1], nbrlen(n, base, spc & 1));
+	maxnb = ft_max(flags.npad[1], nbrlen(n, base, spc & 1));
 	if (!flags.meno)
 		ft_putpad(flags.npad[0] - maxnb, (char)flags.pad);
 	if (flags.numsign && base == 16 && n)
@@ -35,7 +35,7 @@ void	managenbr(long n, int base, int spc, t_flags flags)
 		ft_putunnbrbase((unsigned long)n, base, spc & 32);
 	else
 		ft_putnbrbase(n, base, spc & 32);
-	maxnb = max(flags.npad[1], nbrlen(n, base, spc & 1));
+	maxnb = ft_max(flags.npad[1], nbrlen(n, base, spc & 1));
 	if (flags.meno)
 		ft_putpad(flags.npad[0] - maxnb, ' ');
 }

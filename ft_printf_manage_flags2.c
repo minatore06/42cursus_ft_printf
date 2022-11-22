@@ -15,8 +15,8 @@ int	manage_imptr_flag(int result, long n, t_flags flags)
 {
 	int	tmp;
 
-	tmp = max(flags.npad[1], unnbrlen((unsigned long)n, 16) + 2);
-	result += max(flags.npad[0], tmp);
+	tmp = ft_max(flags.npad[1], unnbrlen((unsigned long)n, 16) + 2);
+	result += ft_max(flags.npad[0], tmp);
 	if (flags.piu)
 		ft_putchar('+');
 	else if (flags.spazio)
@@ -43,7 +43,7 @@ int	manage_ptr_flag(int result, t_flags flags, va_list arg_ptr)
 		result = manage_imptr_flag(result, n, flags);
 	else
 	{
-		result += max(flags.npad[0], nbrlen(n, 16, 0) + 2);
+		result += ft_max(flags.npad[0], nbrlen(n, 16, 0) + 2);
 		strvar = ptrtostr(n, 0, 0, flags);
 		ft_putstr(strvar);
 		free(strvar);

@@ -26,7 +26,7 @@ int	ptrtostr1(int *len, char **str, t_flags *flags)
 	*str = malloc(sizeof(char) * (len[0] + 1));
 	if (flags->pad == ' ' && !flags->meno)
 	{
-		while (i < flags->npad[0] - len[1] - max(flags->npad[1], 12))
+		while (i < flags->npad[0] - len[1] - ft_max(flags->npad[1], 12))
 			(*str)[i++] = ' ';
 	}
 	if (flags->spazio)
@@ -49,16 +49,16 @@ int	ptrtostr2(int *len, int *i, char *str, t_flags flags)
 	np1 = flags.npad[1];
 	if (flags.pad == '0')
 	{
-		while (*i < np0 + len[1] - max(np1, 12))
+		while (*i < np0 + len[1] - ft_max(np1, 12))
 			str[(*i)++] = '0';
 	}
-	while (*i < np1 - 12 + len[1] + np0 - len[1] - max(np1, 12))
+	while (*i < np1 - 12 + len[1] + np0 - len[1] - ft_max(np1, 12))
 		str[(*i)++] = '0';
-	pre = len[1] + max(max(np0 - (12 + len[1]), np1 - 12), 0);
+	pre = len[1] + ft_max(ft_max(np0 - (12 + len[1]), np1 - 12), 0);
 	*i = len[0] - 1;
 	if (flags.meno)
 	{
-		pre = len[1] + max(np1 - 12, 0);
+		pre = len[1] + ft_max(np1 - 12, 0);
 		*i = len[0] - 1 - (np0 - 12 - pre);
 	}
 	return (pre);
@@ -70,7 +70,7 @@ char	*ptrtostr(long ptr, int i, int tmp, t_flags flags)
 	int		pre;
 	char	*str;
 
-	len[0] = 14 + max(flags.npad[0] - 14, flags.npad[1] - 12);
+	len[0] = 14 + ft_max(flags.npad[0] - 14, flags.npad[1] - 12);
 	len[1] = 2;
 	i = ptrtostr1(len, &str, &flags);
 	pre = ptrtostr2(len, &i, str, flags);
@@ -85,7 +85,7 @@ char	*ptrtostr(long ptr, int i, int tmp, t_flags flags)
 		i--;
 	}
 	if (flags.meno)
-		i = len[0] - (flags.npad[0] - len[1] - max(flags.npad[1], 12));
+		i = len[0] - (flags.npad[0] - len[1] - ft_max(flags.npad[1], 12));
 	if (flags.meno)
 		while (i < len[0])
 			str[i++] = ' ';

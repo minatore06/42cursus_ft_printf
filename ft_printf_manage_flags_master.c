@@ -22,7 +22,7 @@ int	manage_real_flags(int *i, int result, const char *str, va_list arg_ptr)
 {
 	t_flags	flags;
 
-	reset(&flags);
+	ft_reset(&flags);
 	(*i)++;
 	*i = manage_flags(*i, str, &flags);
 	result = manage_more_flags(result, str[*i], flags, arg_ptr);

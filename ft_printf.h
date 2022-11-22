@@ -29,8 +29,8 @@ typedef struct s_flags{
 
 int		unnbrlen(unsigned long n, unsigned int base);
 int		nbrlen(long n, int base, int uns);
-int		max(int n1, int n2);
-void	reset(t_flags *flags);
+int		ft_max(int n1, int n2);
+void	ft_reset(t_flags *flags);
 int		get_flags(const char *str, char *set, t_flags *flags);
 void	ft_putchar(char c);
 int		ft_putstr(char *s);
