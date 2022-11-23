@@ -28,11 +28,11 @@ int	manage_string_flag(int result, char *strvar, t_flags flags)
 		flags.npad[0] -= 6;
 	else if (flags.punto && strvar[0] && flags.npad[1])
 		strvar = ft_substr(strvar, 0, flags.npad[1]);
-	else if (flags.punto && (!strvar[0] || !flags.npad[1]))
-		return (result);
 	result += ft_max(flags.npad[0], ft_strlen(strvar));
 	if (!flags.meno)
 		ft_putpad(flags.npad[0] - ft_strlen(strvar), ' ');
+	if (fstrvar && lags.punto && (!strvar[0] || !flags.npad[1]))
+		return (result);
 	if (!strvar)
 	{
 		if ((flags.npad[1] > 5 || (flags.npad[1] == 0 && !flags.punto)))
