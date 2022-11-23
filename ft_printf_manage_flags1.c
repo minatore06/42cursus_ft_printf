@@ -22,31 +22,24 @@ int	manage_char_flag(int result, t_flags flags, va_list arg_ptr)
 	return (result);
 }
 
-int	manage_string_flag(int result, char *strvar, t_flags flags)
+int	manage_string_flag(int len, int result, char *strvar, t_flags flags)
 {
 	if (!strvar)
 		flags.npad[0] -= 6;
 	else if (flags.punto && strvar[0] && flags.npad[1])
 		strvar = ft_substr(strvar, 0, flags.npad[1]);
-	result += ft_max(flags.npad[0], ft_strlen(strvar));
+	if (flags.punto && flags.npad[1] < len)
+		len = flags.npad[1];
+	result += ft_max(flags.npad[0], len);
 	if (!flags.meno)
-		ft_putpad(flags.npad[0] - ft_strlen(strvar), ' ');
-	if (fstrvar && lags.punto && (!strvar[0] || !flags.npad[1]))
-		return (result);
+		ft_putpad(flags.npad[0] - len, ' ');
 	if (!strvar)
-	{
-		if ((flags.npad[1] > 5 || (flags.npad[1] == 0 && !flags.punto)))
-			result += 6;
-		if ((flags.npad[1] > 5 || (flags.npad[1] == 0 && !flags.punto)))
-			ft_putstr("(null)", 1);
-		else
-			ft_putstr("", 1);
-	}
-	else
+		result = manage_nostring_flag(result, flags);
+	else if (!(strvar && flags.punto && (!strvar[0] || !flags.npad[1])))
 		ft_putstr(strvar, 1);
 	if (flags.meno)
-		ft_putpad(flags.npad[0] - ft_strlen(strvar), ' ');
-	if (strvar && flags.punto)
+		ft_putpad(flags.npad[0] - len, ' ');
+	if (strvar && flags.punto && strvar[0] && flags.npad[1])
 		free(strvar);
 	return (result);
 }
