@@ -36,8 +36,12 @@ int	manage_ptr_flag(int result, t_flags flags, va_list arg_ptr)
 		result++;
 	if (!n)
 	{
-		result += 5;
-		ft_putstr("(nil)");
+		if (!flags.meno)
+			ft_putpad(flags.npad[0] - 5, ' ');
+		result += 5 + ft_max(0, flags.npad[0] - 5);
+		ft_putstr("(nil)", 1);
+		if (flags.meno)
+			ft_putpad(flags.npad[0] - 5, ' ');
 	}
 	else if (nbrlen(n, 16, 0) != 12)
 		result = manage_imptr_flag(result, n, flags);
@@ -45,7 +49,7 @@ int	manage_ptr_flag(int result, t_flags flags, va_list arg_ptr)
 	{
 		result += ft_max(flags.npad[0], nbrlen(n, 16, 0) + 2);
 		strvar = ptrtostr(n, 0, 0, flags);
-		ft_putstr(strvar);
+		ft_putstr(strvar, 1);
 		free(strvar);
 	}
 	return (result);
@@ -53,6 +57,9 @@ int	manage_ptr_flag(int result, t_flags flags, va_list arg_ptr)
 
 int	manage_more_flags(int result, char flag, t_flags flags, va_list ap)
 {
+	char	*strvar;
+
+	strvar = "";
 	if (flag == 'c' || flag == 's' || flag == 'p'
 		|| flag == 'd' || flag == 'i' || flag == 'u'
 		|| flag == 'x' || flag == 'X')
@@ -60,7 +67,7 @@ int	manage_more_flags(int result, char flag, t_flags flags, va_list ap)
 		if (flag == 'c')
 			result = manage_char_flag(result, flags, ap);
 		else if (flag == 's')
-			result = manage_string_flag(result, flags, ap);
+			result = manage_string_flag(result, strvar, flags, ap);
 		else if (flag == 'p')
 			result = manage_ptr_flag(result, flags, ap);
 		else if (flag == 'd' || flag == 'i')
@@ -93,5 +100,7 @@ int	manage_flags(int i, const char *str, t_flags *flags)
 		}
 		flags->punto = 1;
 	}
+	if (flags->punto)
+		flags->pad = 32;
 	return (i);
 }

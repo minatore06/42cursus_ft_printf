@@ -70,7 +70,7 @@ char	*ptrtostr(long ptr, int i, int tmp, t_flags flags)
 	int		pre;
 	char	*str;
 
-	len[0] = 14 + ft_max(flags.npad[0] - 14, flags.npad[1] - 12);
+	len[0] = 14 + ft_max(0, ft_max(flags.npad[0] - 14, flags.npad[1] - 12));
 	len[1] = 2;
 	i = ptrtostr1(len, &str, &flags);
 	pre = ptrtostr2(len, &i, str, flags);

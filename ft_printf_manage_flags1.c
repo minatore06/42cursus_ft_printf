@@ -22,60 +22,94 @@ int	manage_char_flag(int result, t_flags flags, va_list arg_ptr)
 	return (result);
 }
 
-int	manage_string_flag(int result, t_flags flags, va_list arg_ptr)
+int	manage_string_flag(int result, char *strvar, t_flags flags, va_list ap)
 {
-	char	*strvar;
-
-	strvar = va_arg(arg_ptr, char *);
-	if (flags.punto)
+	strvar = va_arg(ap, char *);
+	if (!strvar)
+		flags.npad[0] -= 6;
+	else if (flags.punto)
 		strvar = ft_substr(strvar, 0, flags.npad[1]);
 	result += ft_max(flags.npad[0], ft_strlen(strvar));
 	if (!flags.meno)
 		ft_putpad(flags.npad[0] - ft_strlen(strvar), ' ');
 	if (!strvar)
 	{
-		result += 6;
-		ft_putstr("(null)");
+		if ((flags.npad[1] > 5 || (flags.npad[1] == 0 && !flags.punto)))
+			result += 6;
+		if ((flags.npad[1] > 5 || (flags.npad[1] == 0 && !flags.punto)))
+			ft_putstr("(null)", 1);
+		else
+			ft_putstr("", 1);
 	}
 	else
-		ft_putstr(strvar);
+		ft_putstr(strvar, 1);
 	if (flags.meno)
 		ft_putpad(flags.npad[0] - ft_strlen(strvar), ' ');
-	if (flags.punto)
+	if (strvar && flags.punto)
 		free(strvar);
 	return (result);
 }
 
 int	manage_nbr_flag(int result, t_flags flags, va_list arg_ptr)
 {
+	int		len;
+	int		spc;
 	long	n;
 
+	spc = 0;
 	n = va_arg(arg_ptr, int);
-	result += ft_max(flags.npad[0], ft_max(flags.npad[1], nbrlen(n, 10, 0)));
+	len = nbrlen(n, 10, 0);
+	if (flags.punto && !flags.npad[1] && !n)
+	{
+		len = 0;
+		spc = 16;
+	}
+	len = ft_max(flags.npad[1], len);
+	if (n < 0 && nbrlen(n, 10, 0) <= flags.npad[1])
+		len++;
+	result += ft_max(flags.npad[0], len);
 	if ((flags.spazio || flags.piu) && n >= 0)
 		result++;
-	managenbr(n, 10, 0, flags);
+	managenbr(n, 10, spc, flags);
 	return (result);
 }
 
 int	manage_uns_flag(int result, t_flags flags, va_list arg_ptr)
 {
+	int		len;
+	int		spc;
 	long	n;
 
+	spc = 1;
 	n = va_arg(arg_ptr, unsigned int);
-	result += ft_max(flags.npad[0], ft_max(flags.npad[1], nbrlen(n, 10, 0)));
-	managenbr(n, 10, 1, flags);
+	len = nbrlen(n, 10, 1);
+	if (flags.punto && !flags.npad[1] && !n)
+	{
+		len = 0;
+		spc += 16;
+	}
+	result += ft_max(flags.npad[0], ft_max(flags.npad[1], len));
+	managenbr(n, 10, spc, flags);
 	return (result);
 }
 
 int	manage_hex_flag(int result, char flag, t_flags flags, va_list arg_ptr)
 {
-	int		uc;
+	int		len;
+	int		spc;
 	long	n;
 
-	uc = 'x' - flag;
+	spc = 'x' - flag;
 	n = va_arg(arg_ptr, unsigned int);
-	result += ft_max(flags.npad[0], ft_max(flags.npad[1], unnbrlen(n, 16)));
-	managenbr(n, 16, uc + 1, flags);
+	len = nbrlen(n, 16, 1);
+	if (flags.punto && !flags.npad[1] && !n)
+	{
+		len = 0;
+		spc += 16;
+	}
+	if (flags.numsign && n)
+		result += 2;
+	result += ft_max(flags.npad[0], ft_max(flags.npad[1], len));
+	managenbr(n, 16, spc + 1, flags);
 	return (result);
 }

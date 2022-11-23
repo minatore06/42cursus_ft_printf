@@ -28,21 +28,21 @@ typedef struct s_flags{
 }	t_flags;
 
 int		unnbrlen(unsigned long n, unsigned int base);
-int		nbrlen(long n, int base, int uns);
+int		nbrlen(long n, int base, int spc);
 int		ft_max(int n1, int n2);
 void	ft_reset(t_flags *flags);
 int		get_flags(const char *str, char *set, t_flags *flags);
 void	ft_putchar(char c);
-int		ft_putstr(char *s);
+int		ft_putstr(char *s, int bypass);
 void	ft_putpad(int npad, int pad);
-void	ft_putnbrbase(long n, int base, int uc);
-void	ft_putunnbrbase(unsigned long n, unsigned int base, int uc);
+void	ft_putnbrbase(long n, int base, int uc, t_flags flags);
+void	ft_putunnbrbase(unsigned long n, unsigned int bs, int uc, t_flags fags);
 int		ft_printf(const char *str, ...);
 int		manage_almost_flag(int *i, int result);
 int		manage_real_flags(int *i, int result, const char *str, va_list arg_ptr);
 int		manage_no_flag(int *i, int result, const char *str);
 int		manage_char_flag(int result, t_flags flags, va_list arg_ptr);
-int		manage_string_flag(int result, t_flags flags, va_list arg_ptr);
+int		manage_string_flag(int result, char *strvar, t_flags flags, va_list ap);
 int		manage_nbr_flag(int result, t_flags flags, va_list arg_ptr);
 int		manage_uns_flag(int result, t_flags flags, va_list arg_ptr);
 int		manage_hex_flag(int result, char flag, t_flags flags, va_list arg_ptr);

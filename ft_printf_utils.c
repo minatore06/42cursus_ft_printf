@@ -24,11 +24,13 @@ int	unnbrlen(unsigned long n, unsigned int base)
 	return (ndig);
 }
 
-int	nbrlen(long n, int base, int uns)
+int	nbrlen(long n, int base, int spc)
 {
 	int	ndig;
 
-	if (uns)
+	if (spc & 16 && !n)
+		return (0);
+	if (spc & 1)
 		return (unnbrlen((unsigned long)n, (unsigned int) base));
 	ndig = 1;
 	if ((unsigned long long)n == -9223372036854775808U)
