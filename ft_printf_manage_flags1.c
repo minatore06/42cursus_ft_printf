@@ -22,13 +22,14 @@ int	manage_char_flag(int result, t_flags flags, va_list arg_ptr)
 	return (result);
 }
 
-int	manage_string_flag(int result, char *strvar, t_flags flags, va_list ap)
+int	manage_string_flag(int result, char *strvar, t_flags flags)
 {
-	strvar = va_arg(ap, char *);
 	if (!strvar)
 		flags.npad[0] -= 6;
-	else if (flags.punto)
+	else if (flags.punto && strvar[0] && flags.npad[1])
 		strvar = ft_substr(strvar, 0, flags.npad[1]);
+	else if (flags.punto && (!strvar[0] || !flags.npad[1]))
+		return (result);
 	result += ft_max(flags.npad[0], ft_strlen(strvar));
 	if (!flags.meno)
 		ft_putpad(flags.npad[0] - ft_strlen(strvar), ' ');

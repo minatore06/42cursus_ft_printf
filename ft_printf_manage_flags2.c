@@ -67,7 +67,10 @@ int	manage_more_flags(int result, char flag, t_flags flags, va_list ap)
 		if (flag == 'c')
 			result = manage_char_flag(result, flags, ap);
 		else if (flag == 's')
-			result = manage_string_flag(result, strvar, flags, ap);
+		{
+			strvar = va_arg(ap, char *);
+			result = manage_string_flag(result, strvar, flags);
+		}
 		else if (flag == 'p')
 			result = manage_ptr_flag(result, flags, ap);
 		else if (flag == 'd' || flag == 'i')

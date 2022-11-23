@@ -42,7 +42,7 @@ int		manage_almost_flag(int *i, int result);
 int		manage_real_flags(int *i, int result, const char *str, va_list arg_ptr);
 int		manage_no_flag(int *i, int result, const char *str);
 int		manage_char_flag(int result, t_flags flags, va_list arg_ptr);
-int		manage_string_flag(int result, char *strvar, t_flags flags, va_list ap);
+int		manage_string_flag(int result, char *strvar, t_flags flags);
 int		manage_nbr_flag(int result, t_flags flags, va_list arg_ptr);
 int		manage_uns_flag(int result, t_flags flags, va_list arg_ptr);
 int		manage_hex_flag(int result, char flag, t_flags flags, va_list arg_ptr);
