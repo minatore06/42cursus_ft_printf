@@ -11,10 +11,13 @@
 /* ************************************************************************** */
 #include "ft_printf.h"
 
-int	manage_almost_flag(int *i, int result)
+int	manage_almost_flag(int *i, int result, const char *str)
 {
 	ft_putchar('%');
-	(*i) += 2;
+	if (!str[*i + 1])
+		(*i)++;
+	else
+		(*i) += 2;
 	return (++result);
 }
 

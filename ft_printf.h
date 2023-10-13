@@ -38,7 +38,7 @@ void	ft_putpad(int npad, int pad);
 void	ft_putnbrbase(long n, int base, int uc, t_flags flags);
 void	ft_putunnbrbase(unsigned long n, unsigned int bs, int uc, t_flags fags);
 int		ft_printf(const char *str, ...);
-int		manage_almost_flag(int *i, int result);
+int		manage_almost_flag(int *i, int result, const char *str);
 int		manage_real_flags(int *i, int result, const char *str, va_list arg_ptr);
 int		manage_no_flag(int *i, int result, const char *str);
 int		manage_char_flag(int result, t_flags flags, va_list arg_ptr);

@@ -22,8 +22,8 @@ int	ft_printf(const char *str, ...)
 	va_start(arg_ptr, str);
 	while (*(str + i))
 	{
-		if (str[i] == '%' && str[i + 1] == '%')
-			result = manage_almost_flag(&i, result);
+		if (str[i] == '%' && (str[i + 1] == '%' || !str[i + 1]))
+			result = manage_almost_flag(&i, result, str);
 		else if (str[i] == '%')
 			result = manage_real_flags(&i, result, str, arg_ptr);
 		else
